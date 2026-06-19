@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RSVP — Audria &amp; Mickael</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body class="rsvp-page">
+    <div class="page-header">
+        <a href="{{ url_for('index') }}" class="back-link">&#8592; Back</a>
+        <h1>RSVP</h1>
+    </div>
+
+    <main class="rsvp-container">
+        <div id="step-lookup" class="step active">
+            <div class="card">
+                <div class="card-ornament">&#10087;</div>
+                <h2>Find Your Invitation</h2>
+                <p class="card-sub">Enter your name exactly as it appears on your invitation.</p>
+                <form id="lookup-form" autocomplete="off">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="first_name">First Name</label>
+                            <input type="text" id="first_name" name="first_name" required placeholder="e.g. Audria">
+                        </div>
+                        <div class="form-group">
+                            <label for="last_name">Last Name</label>
+                            <input type="text" id="last_name" name="last_name" required placeholder="e.g. Smith">
+                        </div>
+                    </div>
+                    <button type="submit" class="btn btn-primary btn-full">Find My Invitation</button>
+                </form>
+                <div id="lookup-error" class="error-message hidden"></div>
+                <div id="lookup-loading" class="loading hidden">Looking up your invitation...</div>
+            </div>
+        </div>
+
+        <div id="step-already-responded" class="step hidden">
+            <div class="card card-success">
+                <div class="success-icon">&#10003;</div>
+                <h2>You've Already RSVP'd</h2>
+                <p id="already-name">Thank you, <strong></strong>! We've already received your response.</p>
+                <p>If you need to change anything, please <a href="mailto:audriaandmickael@example.com">email us</a>.</p>
+                <a href="{{ url_for('index') }}" class="btn btn-secondary">Back to Home</a>
+            </div>
+        </div>
+
+        <div id="step-form" class="step hidden">
+            <div class="card">
+                <div class="card-ornament">&#10087;</div>
+                <h2>Your Response</h2>
+                <p id="guest-greeting" class="card-sub">Welcome, <strong></strong>!</p>
+                <form id="rsvp-form">
+                    <input type="hidden" id="guest_id" name="guest_id">
+
+                    <div class="form-group">
+                        <label>Will you be attending?</label>
+                        <div class="radio-group">
+                            <label class="radio-option" data-value="yes">
+                                <input type="radio" name="attending" value="yes" checked>
+                                <span class="radio-label">Joyfully Accept</span>
+                                <span class="radio-sub">I'll be there!</span>
+                            </label>
+                            <label class="radio-option" data-value="no">
+                                <input type="radio" name="attending" value="no">
+                                <span class="radio-label">Decline with Regret</span>
+                                <span class="radio-sub">I can't make it</span>
+                            </label>
+                        </div>
+                    </div>
+
+                    <div id="guest-count-group" class="form-group">
+                        <label for="number_of_guests">Number of Guests <span class="optional">(including yourself)</span></label>
+                        <select id="number_of_guests" name="number_of_guests">
+                            <option value="1">1</option>
+                            <option value="2">2</option>
+                            <option value="3">3</option>
+                            <option value="4">4</option>
+                            <option value="5">5</option>
+                            <option value="6">6</option>
+                        </select>
+                    </div>
+
+                    <div id="dietary-group" class="form-group">
+                        <label for="dietary_restrictions">Dietary Requirements</label>
+                        <textarea id="dietary_restrictions" name="dietary_restrictions" rows="2" placeholder="e.g. Vegetarian, gluten-free, nut allergy..."></textarea>
+                    </div>
+
+                    <div id="song-group" class="form-group">
+                        <label for="song_request">Song Request</label>
+                        <input type="text" id="song_request" name="song_request" placeholder="What song will get you on the dance floor?">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="message">A Message for Us <span class="optional">(optional)</span></label>
+                        <textarea id="message" name="message" rows="3" placeholder="Share your well-wishes, memories, or a funny story..."></textarea>
+                    </div>
+
+                    <button type="submit" class="btn btn-primary btn-full">Send RSVP</button>
+                </form>
+                <div id="rsvp-loading" class="loading hidden">Submitting your response...</div>
+                <div id="rsvp-error" class="error-message hidden"></div>
+            </div>
+        </div>
+    </main>
+
+    <script src="{{ url_for('static', filename='js/rsvp.js') }}"></script>
+</body>
+</html>

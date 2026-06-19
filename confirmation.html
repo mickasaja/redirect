@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Thank You — Audria &amp; Mickael</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body class="confirmation-page">
+    <main class="confirmation-container">
+        <div class="card card-success">
+            <div class="conf-ornament">&#10087;</div>
+            {% if attending %}
+                <div class="conf-icon">&#127881;</div>
+                <h1>See You in Bali!</h1>
+                <p class="conf-guest-name">{{ guest_name }}</p>
+                <p>Thank you for your RSVP! We're so thrilled you'll be joining us to celebrate.</p>
+                <div class="conf-details">
+                    <p><strong>Audria &amp; Mickael</strong></p>
+                    <p>Late October 2026</p>
+                    <p>Bali, Indonesia</p>
+                    <p class="conf-more">More details to come!</p>
+                </div>
+            {% else %}
+                <div class="conf-icon">&#10084;</div>
+                <h1>We'll Miss You</h1>
+                <p class="conf-guest-name">{{ guest_name }}</p>
+                <p>Thank you for letting us know. You'll be in our thoughts on the day!</p>
+            {% endif %}
+            <a href="{{ url_for('index') }}" class="btn btn-secondary">Back to Home</a>
+        </div>
+    </main>
+</body>
+</html>

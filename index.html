@@ -116,28 +116,41 @@ footer .line{width:40px;height:1px;background:var(--sand);margin:0 auto 18px}
 <section id="rsvp-section">
   <div class="card">
     <div class="topflower" style="font-size:1.5rem;margin-bottom:12px">&#10086;</div>
-    <h2>Your Response</h2>
-    <p class="card-sub">We'd be honoured to know if you can join us.</p>
-    <form id="rsvp-form" onsubmit="return submitRSVP(event)">
-      <div class="form-row">
-        <div class="form-group"><label>First Name</label><input type="text" id="first_name" required placeholder="Your first name"></div>
-        <div class="form-group"><label>Last Name</label><input type="text" id="last_name" required placeholder="Your last name"></div>
-      </div>
-      <div class="form-group"><label>Email</label><input type="email" id="email" required placeholder="you@example.com"></div>
-      <div class="form-group"><label>Phone / WhatsApp <span class="opt">(optional)</span></label><input type="tel" id="phone" placeholder="+1 234 567 8900"></div>
-      <div class="form-group"><label>Will you be attending?</label>
-        <div class="radio-group" id="attending-group">
-          <label class="radio-opt sel" data-value="yes" onclick="selectRadio(this,'attending-group')"><input type="radio" name="attending" value="yes" checked><span class="radio-label">Joyfully Accept</span><span class="radio-sub">I'll be there!</span></label>
-          <label class="radio-opt" data-value="no" onclick="selectRadio(this,'attending-group')"><input type="radio" name="attending" value="no"><span class="radio-label">Decline with Regret</span><span class="radio-sub">I can't make it</span></label>
+
+    <!-- Step 1: Phone Lookup -->
+    <div id="step-lookup">
+      <h2>Find Your Invitation</h2>
+      <p class="card-sub">Enter your phone number as it appears on your invitation.</p>
+      <div class="form-group"><label>Phone / WhatsApp</label><input type="tel" id="lookup-phone" placeholder="+1 234 567 8900"></div>
+      <button type="button" class="btn" style="width:100%" onclick="lookupGuest()">Find My Invitation</button>
+      <div id="lookup-error" class="error hidden"></div>
+    </div>
+
+    <!-- Step 2: RSVP Form (hidden until lookup succeeds) -->
+    <div id="step-form" class="hidden">
+      <h2>Your Response</h2>
+      <p class="card-sub" id="greeting"></p>
+      <form id="rsvp-form" onsubmit="return submitRSVP(event)">
+        <div id="guest-name-fields" class="form-row">
+          <div class="form-group"><label>First Name</label><input type="text" id="first_name" required placeholder="Your first name"></div>
+          <div class="form-group"><label>Last Name</label><input type="text" id="last_name" required placeholder="Your last name"></div>
         </div>
-      </div>
-      <div class="form-group" id="guest-count"><label>Number of Guests <span class="opt">(including yourself — max 2)</span></label><select id="number_of_guests" onchange="togglePlusOne()"><option>1</option><option>2</option></select></div>
-      <div class="form-group hidden" id="plusone-group"><label>Partner Name</label><div class="form-row"><div class="form-group"><input type="text" id="plusone_first" placeholder="First name"></div><div class="form-group"><input type="text" id="plusone_last" placeholder="Last name"></div></div></div>
-      <div class="form-group" id="dietary-group"><label>Dietary Requirements <span class="opt">(optional)</span></label><textarea id="dietary" placeholder="e.g. Vegetarian, gluten-free, allergies..."></textarea></div>
-      <div class="form-group"><label>Message for the Couple <span class="opt">(optional)</span></label><textarea id="message-text" placeholder="Share your well-wishes..."></textarea></div>
-      <button type="submit" class="btn" style="width:100%">Send RSVP</button>
-    </form>
-    <div id="rsvp-error" class="error hidden"></div><div id="rsvp-loading" class="loading hidden">Submitting...</div>
+        <input type="hidden" id="phone">
+        <div class="form-group"><label>Email</label><input type="email" id="email" required placeholder="you@example.com"></div>
+        <div class="form-group"><label>Will you be attending?</label>
+          <div class="radio-group" id="attending-group">
+            <label class="radio-opt sel" data-value="yes" onclick="selectRadio(this,'attending-group')"><input type="radio" name="attending" value="yes" checked><span class="radio-label">Joyfully Accept</span><span class="radio-sub">I'll be there!</span></label>
+            <label class="radio-opt" data-value="no" onclick="selectRadio(this,'attending-group')"><input type="radio" name="attending" value="no"><span class="radio-label">Decline with Regret</span><span class="radio-sub">I can't make it</span></label>
+          </div>
+        </div>
+        <div class="form-group" id="guest-count"><label>Number of Guests <span class="opt">(including yourself)</span></label><select id="number_of_guests" onchange="togglePlusOne()"></select></div>
+        <div class="form-group hidden" id="plusone-group"><label>Partner Name</label><div class="form-row"><div class="form-group"><input type="text" id="plusone_first" placeholder="First name"></div><div class="form-group"><input type="text" id="plusone_last" placeholder="Last name"></div></div></div>
+        <div class="form-group" id="dietary-group"><label>Dietary Requirements <span class="opt">(optional)</span></label><textarea id="dietary" placeholder="e.g. Vegetarian, gluten-free, allergies..."></textarea></div>
+        <div class="form-group"><label>Message for the Couple <span class="opt">(optional)</span></label><textarea id="message-text" placeholder="Share your well-wishes..."></textarea></div>
+        <button type="submit" class="btn" style="width:100%">Send RSVP</button>
+      </form>
+      <div id="rsvp-error" class="error hidden"></div><div id="rsvp-loading" class="loading hidden">Submitting...</div>
+    </div>
   </div>
 </section>
 
@@ -171,29 +184,111 @@ footer .line{width:40px;height:1px;background:var(--sand);margin:0 auto 18px}
 </footer>
 
 <script>
-function selectRadio(el,gid){document.querySelectorAll('#'+gid+' .radio-opt').forEach(o=>o.classList.remove('sel'));el.classList.add('sel');el.querySelector('input').checked=true;var y=el.dataset.value==='yes';document.getElementById('guest-count').style.display=y?'block':'none';document.getElementById('dietary-group').style.display=y?'block':'none';if(!y)document.getElementById('plusone-group').classList.add('hidden');else togglePlusOne()}
-function togglePlusOne(){var n=document.getElementById('number_of_guests').value;var p=document.getElementById('plusone-group');p.classList.toggle('hidden',n!=='2')}
+// ═══ GUEST LIST ═══ (edit this! phone → {first,last,plusone:bool,max_guests:1|2})
+var GUESTS={
+  "+1234567890":{first:"Emily",last:"Johnson",plusone:true,max_guests:2},
+  "+1234567891":{first:"James",last:"Johnson",plusone:true,max_guests:2},
+  "+1234567892":{first:"Linda",last:"Johnson",plusone:false,max_guests:1},
+  "+1234567893":{first:"Michael",last:"Chen",plusone:true,max_guests:2},
+  "+1234567894":{first:"Sophia",last:"Parker",plusone:true,max_guests:2},
+  "+1234567895":{first:"David",last:"Williams",plusone:false,max_guests:1},
+  "+1234567896":{first:"Jessica",last:"Williams",plusone:false,max_guests:1},
+  "+1234567897":{first:"Robert",last:"Brown",plusone:true,max_guests:2},
+  "+1234567898":{first:"Amanda",last:"Martinez",plusone:false,max_guests:1},
+  "+1234567899":{first:"Christopher",last:"Garcia",plusone:true,max_guests:2},
+  "+62812345678":{first:"Budi",last:"Santoso",plusone:true,max_guests:2},
+  "+62812345679":{first:"Dewi",last:"Wulandari",plusone:false,max_guests:1}
+};
+
+var currentGuest=null;
+
+function normalizePhone(p){return p.replace(/[^+0-9]/g,'').trim()}
+
+function lookupGuest(){
+  var err=document.getElementById('lookup-error');err.classList.add('hidden');
+  var raw=document.getElementById('lookup-phone').value;
+  if(!raw){err.textContent='Please enter your phone number';err.classList.remove('hidden');return}
+  var phone=normalizePhone(raw);
+  var guest=GUESTS[phone];
+  if(!guest){err.textContent='Phone number not found. Please check or contact us.';err.classList.remove('hidden');return}
+  // Found!
+  currentGuest=guest;
+  document.getElementById('first_name').value=guest.first;
+  document.getElementById('last_name').value=guest.last;
+  document.getElementById('phone').value=phone;
+  document.getElementById('greeting').textContent='Welcome back, '+guest.first+' '+guest.last+'!';
+  // Build guest count options
+  var sel=document.getElementById('number_of_guests');
+  sel.innerHTML='';
+  for(var i=1;i<=guest.max_guests;i++){var o=document.createElement('option');o.value=i;o.textContent=i;sel.appendChild(o)}
+  if(guest.max_guests<2)sel.value='1';
+  // Show/hide +1 based on guest config
+  document.getElementById('plusone-group').classList.toggle('hidden',!guest.plusone);
+  // Switch steps
+  document.getElementById('step-lookup').classList.add('hidden');
+  document.getElementById('step-form').classList.remove('hidden');
+}
+
+function selectRadio(el,gid){
+  document.querySelectorAll('#'+gid+' .radio-opt').forEach(function(o){o.classList.remove('sel')});
+  el.classList.add('sel');el.querySelector('input').checked=true;
+  var y=el.dataset.value==='yes';
+  document.getElementById('guest-count').style.display=y?'block':'none';
+  document.getElementById('dietary-group').style.display=y?'block':'none';
+  if(!y)document.getElementById('plusone-group').classList.add('hidden');
+  else if(currentGuest)document.getElementById('plusone-group').classList.toggle('hidden',!currentGuest.plusone);
+}
+
+function togglePlusOne(){
+  var n=parseInt(document.getElementById('number_of_guests').value);
+  if(currentGuest&&currentGuest.plusone){
+    document.getElementById('plusone-group').classList.toggle('hidden',n<2);
+  }
+}
+
 function hideAll(){['hero-section','more-section','rsvp-section','confirm','admin-panel'].forEach(function(id){var e=document.getElementById(id);if(e){e.style.display='none';e.classList.remove('active')}})}
-function showRSVP(){hideAll();document.getElementById('rsvp-section').style.display='block';document.getElementById('rsvp-section').classList.add('active');document.getElementById('rsvp-section').scrollIntoView({behavior:'smooth'})}
+
+function showRSVP(){
+  hideAll();
+  // Reset to lookup step
+  document.getElementById('step-lookup').classList.remove('hidden');
+  document.getElementById('step-form').classList.add('hidden');
+  document.getElementById('lookup-phone').value='';
+  document.getElementById('lookup-error').classList.add('hidden');
+  document.getElementById('rsvp-error').classList.add('hidden');
+  currentGuest=null;
+  document.getElementById('rsvp-section').style.display='block';
+  document.getElementById('rsvp-section').classList.add('active');
+  document.getElementById('rsvp-section').scrollIntoView({behavior:'smooth'});
+}
+
 function showAdmin(){hideAll();document.getElementById('admin-panel').style.display='block';document.getElementById('admin-panel').classList.add('active');renderAdmin();document.getElementById('admin-panel').scrollIntoView({behavior:'smooth'})}
+
 function renderAdmin(){
   var d=JSON.parse(localStorage.getItem('wedding_rsvps')||'[]');
   document.getElementById('admin-stats').innerHTML='<div class="stat-box"><div class="stat-num">'+d.length+'</div><div class="stat-lbl">Total</div></div><div class="stat-box stat-yes"><div class="stat-num">'+d.filter(function(r){return r.attending}).length+'</div><div class="stat-lbl">Attending</div></div><div class="stat-box stat-no"><div class="stat-num">'+d.filter(function(r){return !r.attending}).length+'</div><div class="stat-lbl">Declined</div></div><div class="stat-box stat-pending"><div class="stat-num">'+d.filter(function(r){return r.attending}).reduce(function(s,r){return s+r.guests},0)+'</div><div class="stat-lbl">Total Guests</div></div>';
   var tbody='';
-  d.forEach(function(r){
-    tbody+='<tr><td>'+r.name+'</td><td>'+(r.plusone||'&mdash;')+'</td><td>'+r.email+'</td><td>'+r.phone+'</td><td><span class="badge '+(r.attending?'badge-yes':'badge-no')+'">'+(r.attending?'Attending':'Declined')+'</span></td><td>'+(r.attending?r.guests:'&mdash;')+'</td><td>'+r.dietary+'</td><td>'+r.message+'</td></tr>';
-  });
+  d.forEach(function(r){tbody+='<tr><td>'+r.name+'</td><td>'+(r.plusone||'&mdash;')+'</td><td>'+r.email+'</td><td>'+r.phone+'</td><td><span class="badge '+(r.attending?'badge-yes':'badge-no')+'">'+(r.attending?'Attending':'Declined')+'</span></td><td>'+(r.attending?r.guests:'&mdash;')+'</td><td>'+r.dietary+'</td><td>'+r.message+'</td></tr>'});
   document.getElementById('admin-tbody').innerHTML=tbody||'<tr><td colspan="8" style="text-align:center;padding:24px;color:var(--text-light)">No RSVPs yet</td></tr>';
 }
+
 function submitRSVP(e){
   e.preventDefault();document.getElementById('rsvp-error').classList.add('hidden');document.getElementById('rsvp-loading').classList.remove('hidden');
   var name=document.getElementById('first_name').value.trim()+' '+document.getElementById('last_name').value.trim();
   var attending=document.querySelector('input[name="attending"]:checked').value==='yes';
-  var plusone=document.getElementById('number_of_guests').value==='2'?(document.getElementById('plusone_first').value.trim()+' '+document.getElementById('plusone_last').value.trim()).trim():'';
+  var guests=attending?parseInt(document.getElementById('number_of_guests').value):0;
+  var plusone='';
+  if(attending&&currentGuest&&currentGuest.plusone&&guests>1){
+    plusone=(document.getElementById('plusone_first').value.trim()+' '+document.getElementById('plusone_last').value.trim()).trim();
+  }
+  var phone=document.getElementById('phone').value;
+  // Check if already responded
   var rsvps=JSON.parse(localStorage.getItem('wedding_rsvps')||'[]');
-  rsvps.push({name:name,email:document.getElementById('email').value.trim(),phone:document.getElementById('phone').value.trim(),attending:attending,guests:attending?parseInt(document.getElementById('number_of_guests').value):0,plusone:plusone,dietary:document.getElementById('dietary').value.trim(),message:document.getElementById('message-text').value.trim(),time:new Date().toISOString()});
+  var already=rsvps.filter(function(r){return normalizePhone(r.phone)===normalizePhone(phone)});
+  if(already.length>0){document.getElementById('rsvp-error').textContent='This phone number has already RSVPd. If you need to change, please contact us.';document.getElementById('rsvp-error').classList.remove('hidden');document.getElementById('rsvp-loading').classList.add('hidden');return false}
+  rsvps.push({name:name,email:document.getElementById('email').value.trim(),phone:phone,attending:attending,guests:guests,plusone:plusone,dietary:document.getElementById('dietary').value.trim(),message:document.getElementById('message-text').value.trim(),time:new Date().toISOString()});
   localStorage.setItem('wedding_rsvps',JSON.stringify(rsvps));
-  fetch('/api/rsvp',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({first_name:document.getElementById('first_name').value.trim(),last_name:document.getElementById('last_name').value.trim(),email:document.getElementById('email').value.trim(),phone:document.getElementById('phone').value.trim(),attending:attending?'yes':'no',number_of_guests:attending?parseInt(document.getElementById('number_of_guests').value):0,dietary_restrictions:document.getElementById('dietary').value.trim(),message:document.getElementById('message-text').value.trim(),simple:true})}).catch(function(){});
+  fetch('/api/rsvp',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({first_name:document.getElementById('first_name').value.trim(),last_name:document.getElementById('last_name').value.trim(),email:document.getElementById('email').value.trim(),phone:phone,attending:attending?'yes':'no',number_of_guests:guests,plusone:plusone,dietary_restrictions:document.getElementById('dietary').value.trim(),message:document.getElementById('message-text').value.trim(),simple:true})}).catch(function(){});
   document.getElementById('rsvp-loading').classList.add('hidden');
   hideAll();
   document.getElementById('confirm').style.display='flex';document.getElementById('confirm').classList.add('active');
@@ -202,7 +297,8 @@ function submitRSVP(e){
   document.getElementById('confirm-msg').textContent=attending?"We're so thrilled you'll be joining us!":"Thank you for letting us know.";
   document.getElementById('confirm').scrollIntoView({behavior:'smooth'});return false;
 }
-}document.querySelectorAll('input[name="attending"]').forEach(function(r){r.addEventListener('change',function(){var y=this.value==='yes';document.getElementById('guest-count').style.display=y?'block':'none';document.getElementById('dietary-group').style.display=y?'block':'none';if(!y)document.getElementById('plusone-group').classList.add('hidden');else togglePlusOne()})});
+
+document.querySelectorAll('input[name="attending"]').forEach(function(r){r.addEventListener('change',function(){var y=this.value==='yes';document.getElementById('guest-count').style.display=y?'block':'none';document.getElementById('dietary-group').style.display=y?'block':'none';if(!y)document.getElementById('plusone-group').classList.add('hidden');else if(currentGuest)document.getElementById('plusone-group').classList.toggle('hidden',!currentGuest.plusone)})});
 </script>
 </body>
 </html>

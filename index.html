@@ -147,7 +147,7 @@ footer .line{width:40px;height:1px;background:var(--sand);margin:0 auto 18px}
           <div class="form-group"><label>Your First Name</label><input type="text" id="rsvp_first" required placeholder="First name"></div>
           <div class="form-group"><label>Your Last Name</label><input type="text" id="rsvp_last" required placeholder="Last name"></div>
         </div>
-        <div class="form-group"><label>Email</label><input type="email" id="email" required placeholder="you@example.com"></div>
+        <div class="form-group"><label>Email <span style="color:var(--rose)">*</span></label><input type="email" id="email" required placeholder="you@example.com" pattern="[a-zA-Z0-9._%+\-]+@[a-zA-Z0-9.\-]+\.[a-zA-Z]{2,}"></div>
         <div class="form-group"><label>Will you be attending?</label>
           <div class="radio-group" id="attending-group">
             <label class="radio-opt sel" data-value="yes" onclick="selectRadio(this,'attending-group')"><input type="radio" name="attending" value="yes" checked><span class="radio-label">Joyfully Accept</span><span class="radio-sub" id="radio-yes-text">I'll be there!</span></label>
@@ -371,7 +371,14 @@ function renderAdmin(){
 }
 
 function submitRSVP(e){
-  e.preventDefault();document.getElementById('rsvp-error').classList.add('hidden');document.getElementById('rsvp-loading').classList.remove('hidden');
+  e.preventDefault();
+  var email=document.getElementById('email').value.trim();
+  if(!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)){
+    document.getElementById('rsvp-error').textContent='Please enter a valid email address.';
+    document.getElementById('rsvp-error').classList.remove('hidden');
+    return false;
+  }
+  document.getElementById('rsvp-error').classList.add('hidden');document.getElementById('rsvp-loading').classList.remove('hidden');
   var attending=document.querySelector('input[name="attending"]:checked').value==='yes';
   var phone=document.getElementById('phone').value;
   var rsvps=JSON.parse(localStorage.getItem('wedding_rsvps')||'[]');
@@ -399,7 +406,7 @@ function submitRSVP(e){
 
   rsvps.push({name:name,email:document.getElementById('email').value.trim(),phone:phone,attending:attending,total_guests:attending?totalGuests:0,guests_detail:guestsDetail||'attending alone',days:daysStr||'not specified',dietary:document.getElementById('dietary').value.trim(),message:document.getElementById('message-text').value.trim(),time:new Date().toISOString()});
   localStorage.setItem('wedding_rsvps',JSON.stringify(rsvps));
-  fetch('/api/rsvp',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({first_name:firstName,last_name:lastName,email:document.getElementById('email').value.trim(),phone:phone,attending:attending?'yes':'no',total_guests:attending?totalGuests:0,guests_detail:guestsDetail,days:daysStr,dietary_restrictions:document.getElementById('dietary').value.trim(),message:document.getElementById('message-text').value.trim(),simple:true})}).catch(function(){});
+  fetch('https://script.google.com/macros/s/AKfycbzu427uvVt57f-XNp0-tepd8v8fVJcNPK6jOBVx1Dx9dMyVzI3Kg1TnqC5G3cxFHYE9/exec',{method:'POST',mode:'no-cors',headers:{'Content-Type':'text/plain'},body:JSON.stringify({first_name:firstName,last_name:lastName,email:document.getElementById('email').value.trim(),phone:phone,attending:attending?'yes':'no',total_guests:attending?totalGuests:0,guests_detail:guestsDetail,days:daysStr,dietary_restrictions:document.getElementById('dietary').value.trim(),message:document.getElementById('message-text').value.trim()})}).catch(function(){});
   document.getElementById('rsvp-loading').classList.add('hidden');
   hideAll();
   document.getElementById('confirm').style.display='flex';document.getElementById('confirm').classList.add('active');

@@ -263,4 +263,119 @@ var GUESTS={
   "+33684420391":{first:"Guest",guests:1},
   "+33782441756":{first:"Guest",guests:0},
   "+6281380942797":{first:"Guest",guests:1},
-};|
+};
+
+var currentGuest=null;
+
+function normalizePhone(p){return p.replace(/[^+0-9]/g,'').trim()}
+
+function lookupGuest(){
+  var err=document.getElementById('lookup-error');err.classList.add('hidden');
+  var cc=document.getElementById('lookup-country').value;
+  var raw=document.getElementById('lookup-phone').value.trim();
+  if(!cc){err.textContent='Please select your country code';err.classList.remove('hidden');return}
+  if(!raw){err.textContent='Please enter your phone number';err.classList.remove('hidden');return}
+  if(raw.charAt(0)==='0'){err.textContent='Phone number should not start with 0';err.classList.remove('hidden');return}
+  var phone='+'+cc+raw;
+  var guest=GUESTS[phone];
+  if(!guest){err.textContent='Phone number not found. Please check or contact us.';err.classList.remove('hidden');return}
+  currentGuest=guest;
+  var displayName=guest.first||'Guest';
+  document.getElementById('greeting').textContent='Welcome, '+displayName+'!';
+  document.getElementById('phone').value=phone;
+  document.getElementById('guest_first').value=displayName;
+
+  var gs=document.getElementById('guests-section');
+  var totalGuests=1+guest.guests;
+  document.getElementById('total-guests').value=totalGuests+' guest'+(totalGuests>1?'s':'');
+
+  var container=document.getElementById('guest-fields');
+  container.innerHTML='';
+  if(guest.guests>0){
+    for(var i=1;i<=guest.guests;i++){
+      container.innerHTML+='<div class="form-group"><label>Guest '+i+' Name</label><input type="text" class="guest-name-input" placeholder="First and last name"></div>';
+    }
+    document.getElementById('no-guests').checked=false;
+    gs.classList.remove('hidden');
+  }else{
+    gs.classList.add('hidden');
+  }
+
+  document.getElementById('step-lookup').classList.add('hidden');
+  document.getElementById('step-form').classList.remove('hidden');
+}
+
+function toggleGuestFields(){
+  var checked=document.getElementById('no-guests').checked;
+  var container=document.getElementById('guest-fields');
+  var inputs=container.querySelectorAll('input');
+  container.style.display=checked?'none':'block';
+  if(checked){inputs.forEach(function(inp){inp.value=''})}
+}
+
+function selectRadio(el,gid){
+  document.querySelectorAll('#'+gid+' .radio-opt').forEach(function(o){o.classList.remove('sel')});
+  el.classList.add('sel');el.querySelector('input').checked=true;
+  var y=el.dataset.value==='yes';
+  document.getElementById('dietary-group').style.display=y?'block':'none';
+  document.getElementById('guests-section').style.display=y?'block':'none';
+}
+
+function hideAll(){['hero-section','more-section','rsvp-section','confirm','admin-panel'].forEach(function(id){var e=document.getElementById(id);if(e){e.style.display='none';e.classList.remove('active')}})}
+function showRSVP(){
+  hideAll();
+  document.getElementById('step-lookup').classList.remove('hidden');
+  document.getElementById('step-form').classList.add('hidden');
+  document.getElementById('lookup-phone').value='';
+  document.getElementById('lookup-country').value='';
+  document.getElementById('lookup-error').classList.add('hidden');
+  document.getElementById('rsvp-error').classList.add('hidden');
+  currentGuest=null;
+  document.getElementById('rsvp-section').style.display='block';
+  document.getElementById('rsvp-section').classList.add('active');
+  document.getElementById('rsvp-section').scrollIntoView({behavior:'smooth'});
+}
+function showAdmin(){hideAll();document.getElementById('admin-panel').style.display='block';document.getElementById('admin-panel').classList.add('active');renderAdmin();document.getElementById('admin-panel').scrollIntoView({behavior:'smooth'})}
+function renderAdmin(){
+  var d=JSON.parse(localStorage.getItem('wedding_rsvps')||'[]');
+  document.getElementById('admin-stats').innerHTML='<div class="stat-box"><div class="stat-num">'+d.length+'</div><div class="stat-lbl">Total</div></div><div class="stat-box stat-yes"><div class="stat-num">'+d.filter(function(r){return r.attending}).length+'</div><div class="stat-lbl">Attending</div></div><div class="stat-box stat-no"><div class="stat-num">'+d.filter(function(r){return !r.attending}).length+'</div><div class="stat-lbl">Declined</div></div><div class="stat-box stat-pending"><div class="stat-num">'+d.filter(function(r){return r.attending}).reduce(function(s,r){return s+r.total_guests||1},0)+'</div><div class="stat-lbl">Total Guests</div></div>';
+  var tbody='';
+  d.forEach(function(r){tbody+='<tr><td>'+r.name+'</td><td>'+r.email+'</td><td>'+r.phone+'</td><td><span class="badge '+(r.attending?'badge-yes':'badge-no')+'">'+(r.attending?'Attending':'Declined')+'</span></td><td>'+(r.attending?r.total_guests:'&mdash;')+'</td><td>'+(r.guests_detail||'&mdash;')+'</td><td>'+r.dietary+'</td><td>'+r.message+'</td></tr>'});
+  document.getElementById('admin-tbody').innerHTML=tbody||'<tr><td colspan="8" style="text-align:center;padding:24px;color:var(--text-light)">No RSVPs yet</td></tr>';
+}
+
+function submitRSVP(e){
+  e.preventDefault();document.getElementById('rsvp-error').classList.add('hidden');document.getElementById('rsvp-loading').classList.remove('hidden');
+  var attending=document.querySelector('input[name="attending"]:checked').value==='yes';
+  var phone=document.getElementById('phone').value;
+  var rsvps=JSON.parse(localStorage.getItem('wedding_rsvps')||'[]');
+  if(rsvps.some(function(r){return normalizePhone(r.phone)===normalizePhone(phone)})){document.getElementById('rsvp-error').textContent='You have already RSVPd.';document.getElementById('rsvp-error').classList.remove('hidden');document.getElementById('rsvp-loading').classList.add('hidden');return false}
+
+  var name=currentGuest.first||'Guest';
+  var totalGuests=1;
+  var guestsDetail='';
+  var noGuests=document.getElementById('no-guests').checked;
+
+  if(attending && currentGuest.guests>0 && !noGuests){
+    var inputs=document.querySelectorAll('.guest-name-input');
+    var names=[];
+    inputs.forEach(function(inp){var v=inp.value.trim();if(v)names.push(v)});
+    totalGuests=1+names.length;
+    guestsDetail=names.join(', ');
+  }
+
+  rsvps.push({name:name,email:document.getElementById('email').value.trim(),phone:phone,attending:attending,total_guests:attending?totalGuests:0,guests_detail:guestsDetail||'attending alone',dietary:document.getElementById('dietary').value.trim(),message:document.getElementById('message-text').value.trim(),time:new Date().toISOString()});
+  localStorage.setItem('wedding_rsvps',JSON.stringify(rsvps));
+  fetch('/api/rsvp',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({first_name:name,email:document.getElementById('email').value.trim(),phone:phone,attending:attending?'yes':'no',total_guests:attending?totalGuests:0,guests_detail:guestsDetail,dietary_restrictions:document.getElementById('dietary').value.trim(),message:document.getElementById('message-text').value.trim(),simple:true})}).catch(function(){});
+  document.getElementById('rsvp-loading').classList.add('hidden');
+  hideAll();
+  document.getElementById('confirm').style.display='flex';document.getElementById('confirm').classList.add('active');
+  document.getElementById('confirm-name').textContent=name;
+  document.getElementById('confirm-title').textContent=attending?'See You in Bali!':"We'll Miss You";
+  document.getElementById('confirm-msg').textContent=attending?"We're so thrilled you'll be joining us!":"Thank you for letting us know.";
+  document.getElementById('confirm').scrollIntoView({behavior:'smooth'});return false;
+}
+document.querySelectorAll('input[name="attending"]').forEach(function(r){r.addEventListener('change',function(){var y=this.value==='yes';document.getElementById('dietary-group').style.display=y?'block':'none';document.getElementById('guests-section').style.display=y?'block':'none'})});
+</script>
+</body>
+</html>

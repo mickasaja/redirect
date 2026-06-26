@@ -285,6 +285,8 @@ function lookupGuest(){
   var guest=GUESTS[phone];
   if(!guest){err.textContent='Phone number not found. Please check or contact us.';err.classList.remove('hidden');return}
   currentGuest=guest;
+  currentGuest.rawPhone=raw;
+  currentGuest.cc=cc;
   var displayName=guest.first||'Guest';
   var parts=displayName.split(' ');
   document.getElementById('rsvp_first').value=parts[0]||'';
@@ -424,8 +426,8 @@ function submitRSVP(e){
       var sd=document.querySelector('.day-box[value="saturday"]');
       var su=document.querySelector('.day-box[value="sunday"]');
       var ad=document.getElementById('all-days');
-      var params='first_name='+encodeURIComponent(firstName)+'&last_name='+encodeURIComponent(lastName)+'&email='+encodeURIComponent(email)+'&phone='+encodeURIComponent(phone)+'&attending='+(attending?'yes':'no')+'&total_guests='+(attending?totalGuests:0)+'&guest1='+encodeURIComponent(guestNames[0]||'')+'&guest2='+encodeURIComponent(guestNames[1]||'')+'&guest3='+encodeURIComponent(guestNames[2]||'')+'&all_days='+(ad?ad.checked:false)+'&friday='+(fd?fd.checked:false)+'&saturday='+(sd?sd.checked:false)+'&sunday='+(su?su.checked:false)+'&dietary='+encodeURIComponent(document.getElementById('dietary').value.trim())+'&message='+encodeURIComponent(document.getElementById('message-text').value.trim());
-      fetch('https://script.google.com/macros/s/AKfycbyCUYiq6GYXOe1GnriIsVtLdEOccllhKbQBmN3Tk--Jp_Thj-l_t5QI8zarrImfE7lH/exec?'+params,{method:'GET'}).catch(function(){});
+      var params='first_name='+encodeURIComponent(firstName)+'&last_name='+encodeURIComponent(lastName)+'&email='+encodeURIComponent(email)+'&cc='+encodeURIComponent(currentGuest.cc||'')+'&phone='+encodeURIComponent(currentGuest.rawPhone||'')+'&attending='+(attending?'yes':'no')+'&total_guests='+(attending?totalGuests:0)+'&guest1='+encodeURIComponent(guestNames[0]||'')+'&guest2='+encodeURIComponent(guestNames[1]||'')+'&guest3='+encodeURIComponent(guestNames[2]||'')+'&all_days='+(ad?ad.checked:false)+'&friday='+(fd?fd.checked:false)+'&saturday='+(sd?sd.checked:false)+'&sunday='+(su?su.checked:false)+'&dietary='+encodeURIComponent(document.getElementById('dietary').value.trim())+'&message='+encodeURIComponent(document.getElementById('message-text').value.trim());
+      fetch('https://script.google.com/macros/s/AKfycbxaaGHKgFIezsZiFp5j8ebgBPm92_vw-aSRQDD6rarRUS_JmQyj-iXg115dGa-QbrhC/exec?'+params,{method:'GET'}).catch(function(){});
     }catch(ex){}
   },100);
   return false;

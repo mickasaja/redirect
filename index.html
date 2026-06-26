@@ -297,7 +297,7 @@ function lookupGuest(){
 
   var hasGuests=guest.guests>0;
   document.getElementById('radio-yes-text').textContent=hasGuests?"We'll be there!":'Solo, just me!';
-  document.getElementById('radio-no-text').textContent=hasGuests?"We can't make it":'I can\u2019t make it';
+  document.getElementById('radio-no-text').textContent=hasGuests?"We can't make it":'I can’t make it';
   document.getElementById('all-days-text').textContent=hasGuests?"We'll attend the 3 days":"I'll attend the 3 days";
 
   var gs=document.getElementById('guests-section');
@@ -404,12 +404,16 @@ function submitRSVP(e){
   rsvps.push({name:name,email:email,phone:phone,attending:attending,total_guests:attending?totalGuests:0,guests_detail:guestsDetail||'attending alone',days:'',dietary:document.getElementById('dietary').value.trim(),message:document.getElementById('message-text').value.trim(),time:new Date().toISOString()});
   localStorage.setItem('wedding_rsvps',JSON.stringify(rsvps));
 
-  // Show confirmation immediately
-  hideAll();
-  document.getElementById('confirm').style.display='flex';
-  document.getElementById('confirm').classList.add('active');
+  // Show confirmation
+  document.getElementById('rsvp-section').style.display='none';
+  document.getElementById('rsvp-section').classList.remove('active');
+  document.getElementById('hero-section').style.display='none';
+  document.getElementById('more-section').style.display='none';
+  var c=document.getElementById('confirm');
+  c.style.display='flex';
+  c.classList.add('active');
   document.getElementById('confirm-title').textContent='RSVP Sent!';
-  document.getElementById('confirm-name').textContent=name||'Guest';
+  document.getElementById('confirm-name').textContent=(name||'Guest').trim();
   if(attending){
     document.getElementById('confirm-msg').textContent='We can’t wait to celebrate with you in Bali!';
     document.getElementById('confirm-detail').textContent='Thank you for your reply. It means the world to us to have you by our side. See you soon!';
@@ -417,7 +421,7 @@ function submitRSVP(e){
     document.getElementById('confirm-msg').textContent='We’re sad you won’t be joining us.';
     document.getElementById('confirm-detail').textContent='Thank you for letting us know. You’ll be in our hearts.';
   }
-  document.getElementById('confirm').scrollIntoView({behavior:'smooth'});
+  c.scrollIntoView({behavior:'smooth'});
 
   // Send to Google Sheets in background
   setTimeout(function(){

@@ -385,6 +385,10 @@ function submitRSVP(e){
   var attending=document.querySelector('input[name="attending"]:checked').value==='yes';
   var phone=document.getElementById('phone').value;
   var rsvps=JSON.parse(localStorage.getItem('wedding_rsvps')||'[]');
+  if(rsvps.some(function(r){return normalizePhone(r.phone)===normalizePhone(phone)})){
+    alert('Your RSVP has already been registered, please check with the organizers.');
+    return false;
+  }
 
   var firstName=document.getElementById('rsvp_first').value.trim();
   var lastName=document.getElementById('rsvp_last').value.trim();

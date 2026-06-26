@@ -374,6 +374,7 @@ function renderAdmin(){
 
 function submitRSVP(e){
   e.preventDefault();
+  try{
   var email=document.getElementById('email').value.trim();
   if(!email || email.indexOf('@')===-1 || email.lastIndexOf('.')<email.indexOf('@')){
     document.getElementById('rsvp-error').textContent='Please enter a valid email address.';
@@ -423,7 +424,7 @@ function submitRSVP(e){
   }
   c.scrollIntoView({behavior:'smooth'});
 
-  // Send to Google Sheets in background
+  // Send to Google Sheets
   setTimeout(function(){
     try{
       var fd=document.querySelector('.day-box[value="friday"]');
@@ -435,6 +436,7 @@ function submitRSVP(e){
     }catch(ex){}
   },100);
   return false;
+  }catch(err){alert('Error: '+err.message);return false;}
 }
 document.querySelectorAll('input[name="attending"]').forEach(function(r){r.addEventListener('change',function(){var y=this.value==='yes';document.getElementById('dietary-group').style.display=y?'block':'none';document.getElementById('guests-section').style.display=y?'block':'none'})});
 </script>

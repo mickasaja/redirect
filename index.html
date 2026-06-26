@@ -293,16 +293,15 @@ function lookupGuest(){
   document.getElementById('phone').value=phone;
   document.getElementById('guest_first').value=displayName;
 
-  // Update radio labels based on guest count
   var hasGuests=guest.guests>0;
   document.getElementById('radio-yes-text').textContent=hasGuests?"We'll be there!":'Solo, just me!';
-  document.getElementById('radio-no-text').textContent=hasGuests?"We can't make it":'I can\'t make it';
+  document.getElementById('radio-no-text').textContent=hasGuests?"We can't make it":'I can\u2019t make it';
+  document.getElementById('all-days-text').textContent=hasGuests?"We'll attend the 3 days":"I'll attend the 3 days";
 
   var gs=document.getElementById('guests-section');
   var totalGuests=1+guest.guests;
   document.getElementById('total-guests').value=totalGuests+' guest'+(totalGuests>1?'s':'');
 
-  // Build guest name fields (Name & Surname)
   var container=document.getElementById('guest-fields');
   container.innerHTML='';
   if(guest.guests>0){
@@ -374,7 +373,7 @@ function renderAdmin(){
 function submitRSVP(e){
   e.preventDefault();
   var email=document.getElementById('email').value.trim();
-  if(!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)){
+  if(!email || email.indexOf('@')===-1 || email.lastIndexOf('.')<email.indexOf('@')){
     document.getElementById('rsvp-error').textContent='Please enter a valid email address.';
     document.getElementById('rsvp-error').classList.remove('hidden');
     return false;

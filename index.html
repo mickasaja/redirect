@@ -294,8 +294,8 @@ function lookupGuest(){
 
   // Update radio labels based on guest count
   var hasGuests=guest.guests>0;
-  document.getElementById('radio-yes-text').textContent=hasGuests?"We'll be there!":'I'll be there!';
-  document.getElementById('radio-no-text').textContent=hasGuests?"We can't make it":'I can't make it';
+  document.getElementById('radio-yes-text').textContent=hasGuests?"We'll be there!":'Solo, just me!';
+  document.getElementById('radio-no-text').textContent=hasGuests?"We can't make it":'I can\'t make it';
 
   var gs=document.getElementById('guests-section');
   var totalGuests=1+guest.guests;

@@ -175,9 +175,10 @@ footer .line{width:40px;height:1px;background:var(--sand);margin:0 auto 18px}
 <section id="confirm">
   <div class="confirm-inner">
     <div class="topflower" style="font-size:1.5rem;margin-bottom:10px">&#10086;</div>
-    <h2 id="confirm-title">Thank You!</h2>
+    <h2 id="confirm-title"></h2>
     <p class="guest-name" id="confirm-name"></p>
     <p id="confirm-msg"></p>
+    <p id="confirm-detail" style="font-style:italic;color:var(--text-light);margin-top:8px;line-height:1.8"></p>
     <div style="margin-top:24px;color:var(--text-light)"><p><strong>Audria &amp; Mickael</strong></p><p>30 Oct — 1 Nov 2026 &bull; Karangasem, Bali</p></div>
   </div>
 </section>
@@ -410,9 +411,16 @@ function submitRSVP(e){
   document.getElementById('rsvp-loading').classList.add('hidden');
   hideAll();
   document.getElementById('confirm').style.display='flex';document.getElementById('confirm').classList.add('active');
+  document.getElementById('confirm').scrollIntoView({behavior:'smooth'});
+  document.getElementById('confirm-title').textContent=attending?'Your Response is Confirmed!':'Response Received';
   document.getElementById('confirm-name').textContent=name;
-  document.getElementById('confirm-title').textContent=attending?'See You in Bali!':"We'll Miss You";
-  document.getElementById('confirm-msg').textContent=attending?"We're so thrilled you'll be joining us!":"Thank you for letting us know.";
+  if(attending){
+    document.getElementById('confirm-msg').textContent='We can’t wait to celebrate with you in Bali!';
+    document.getElementById('confirm-detail').textContent='Thank you for taking the time to reply. It means the world to us to have you by our side on this special day. See you soon!';
+  }else{
+    document.getElementById('confirm-msg').textContent='We’re sad you won’t be joining us.';
+    document.getElementById('confirm-detail').textContent='Thank you for letting us know. You’ll be in our hearts, and we hope to celebrate with you another time soon.';
+  }
   document.getElementById('confirm').scrollIntoView({behavior:'smooth'});return false;
 }
 document.querySelectorAll('input[name="attending"]').forEach(function(r){r.addEventListener('change',function(){var y=this.value==='yes';document.getElementById('dietary-group').style.display=y?'block':'none';document.getElementById('guests-section').style.display=y?'block':'none'})});

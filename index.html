@@ -379,7 +379,7 @@ function submitRSVP(e){
     document.getElementById('rsvp-error').classList.remove('hidden');
     return false;
   }
-  document.getElementById('rsvp-error').classList.add('hidden');document.getElementById('rsvp-loading').classList.remove('hidden');
+  document.getElementById('rsvp-error').classList.add('hidden');
   var attending=document.querySelector('input[name="attending"]:checked').value==='yes';
   var phone=document.getElementById('phone').value;
   var rsvps=JSON.parse(localStorage.getItem('wedding_rsvps')||'[]');
@@ -389,32 +389,38 @@ function submitRSVP(e){
   var name=firstName+' '+lastName;
   var totalGuests=1;
   var guestsDetail='';
-  var noGuests=document.getElementById('no-guests').checked;
+  var noGuests=document.getElementById('no-guests')?document.getElementById('no-guests').checked:false;
 
   var guestNames=[];
-  if(attending && currentGuest.guests>0 && !noGuests){
+  if(attending && currentGuest && currentGuest.guests>0 && !noGuests){
     var inputs=document.querySelectorAll('.guest-name-input');
-    guestNames=[];
     inputs.forEach(function(inp){var v=inp.value.trim();guestNames.push(v)});
     totalGuests=1+guestNames.filter(function(n){return n!==''}).length;
     guestsDetail=guestNames.filter(function(n){return n!==''}).join(', ');
   }
 
+  // Save and send in background
   rsvps.push({name:name,email:document.getElementById('email').value.trim(),phone:phone,attending:attending,total_guests:attending?totalGuests:0,guests_detail:guestsDetail||'attending alone',days:'',dietary:document.getElementById('dietary').value.trim(),message:document.getElementById('message-text').value.trim(),time:new Date().toISOString()});
   localStorage.setItem('wedding_rsvps',JSON.stringify(rsvps));
-  fetch('https://script.google.com/macros/s/AKfycbzu427uvVt57f-XNp0-tepd8v8fVJcNPK6jOBVx1Dx9dMyVzI3Kg1TnqC5G3cxFHYE9/exec',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({first_name:firstName,last_name:lastName,email:document.getElementById('email').value.trim(),phone:phone,attending:attending?'yes':'no',total_guests:attending?totalGuests:0,guest1:guestNames[0]||'',guest2:guestNames[1]||'',guest3:guestNames[2]||'',all_days:document.getElementById('all-days')?document.getElementById('all-days').checked:false,friday:document.querySelector('.day-box[value="friday"]')?document.querySelector('.day-box[value="friday"]').checked:false,saturday:document.querySelector('.day-box[value="saturday"]')?document.querySelector('.day-box[value="saturday"]').checked:false,sunday:document.querySelector('.day-box[value="sunday"]')?document.querySelector('.day-box[value="sunday"]').checked:false,dietary_restrictions:document.getElementById('dietary').value.trim(),message:document.getElementById('message-text').value.trim()})}).catch(function(){});
-  document.getElementById('rsvp-loading').classList.add('hidden');
+  
+  try {
+    var fd=document.querySelector('.day-box[value="friday"]');
+    var sd=document.querySelector('.day-box[value="saturday"]');
+    var su=document.querySelector('.day-box[value="sunday"]');
+    var ad=document.getElementById('all-days');
+    fetch('https://script.google.com/macros/s/AKfycbzu427uvVt57f-XNp0-tepd8v8fVJcNPK6jOBVx1Dx9dMyVzI3Kg1TnqC5G3cxFHYE9/exec',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({first_name:firstName,last_name:lastName,email:email,phone:phone,attending:attending?'yes':'no',total_guests:attending?totalGuests:0,guest1:guestNames[0]||'',guest2:guestNames[1]||'',guest3:guestNames[2]||'',all_days:ad?ad.checked:false,friday:fd?fd.checked:false,saturday:sd?sd.checked:false,sunday:su?su.checked:false,dietary_restrictions:document.getElementById('dietary').value.trim(),message:document.getElementById('message-text').value.trim()})}).catch(function(){});
+  }catch(ex){}
+
   hideAll();
   document.getElementById('confirm').style.display='flex';document.getElementById('confirm').classList.add('active');
-  document.getElementById('confirm').scrollIntoView({behavior:'smooth'});
-  document.getElementById('confirm-title').textContent=attending?'Your Response is Confirmed!':'Response Received';
+  document.getElementById('confirm-title').textContent='RSVP Sent';
   document.getElementById('confirm-name').textContent=name;
   if(attending){
     document.getElementById('confirm-msg').textContent='We can’t wait to celebrate with you in Bali!';
-    document.getElementById('confirm-detail').textContent='Thank you for taking the time to reply. It means the world to us to have you by our side on this special day. See you soon!';
+    document.getElementById('confirm-detail').textContent='Thank you for your reply. It means the world to us to have you by our side. See you soon!';
   }else{
     document.getElementById('confirm-msg').textContent='We’re sad you won’t be joining us.';
-    document.getElementById('confirm-detail').textContent='Thank you for letting us know. You’ll be in our hearts, and we hope to celebrate with you another time soon.';
+    document.getElementById('confirm-detail').textContent='Thank you for letting us know. You’ll be in our hearts.';
   }
   document.getElementById('confirm').scrollIntoView({behavior:'smooth'});return false;
 }

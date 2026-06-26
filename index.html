@@ -160,10 +160,11 @@ footer .line{width:40px;height:1px;background:var(--sand);margin:0 auto 18px}
           <div class="form-group"><label style="display:flex;align-items:center;gap:8px;cursor:pointer"><input type="checkbox" id="no-guests" onchange="toggleGuestFields()" style="width:auto"> No additional guests, I'll attend alone</label></div>
           <div id="guest-fields"></div>
           <div class="form-group" style="margin-top:12px"><label>Which days will you attend?</label>
-            <label style="display:flex;align-items:flex-start;gap:8px;margin:10px 0;cursor:pointer;font-size:.9rem;font-weight:400"><input type="checkbox" class="day-box" value="friday" style="width:auto;margin-top:3px"> Friday 30th October from 4:30PM — Ceremony, cocktails, dinner &amp; party</label>
-            <label style="display:flex;align-items:flex-start;gap:8px;margin:10px 0;cursor:pointer;font-size:.9rem;font-weight:400"><input type="checkbox" class="day-box" value="saturday" style="width:auto;margin-top:3px"> Saturday 31st October — Activities, barbecue, chill evening</label>
-            <label style="display:flex;align-items:flex-start;gap:8px;margin:10px 0;cursor:pointer;font-size:.9rem;font-weight:400"><input type="checkbox" class="day-box" value="sunday" style="width:auto;margin-top:3px"> Sunday 1st November — Checkout day</label>
-            <label style="display:flex;align-items:center;gap:8px;margin-top:8px;cursor:pointer;font-weight:500"><input type="checkbox" id="all-days" onchange="toggleAllDays()" style="width:auto"> I'll attend the 3 days</label>
+            <label style="display:flex;align-items:center;gap:8px;margin:8px 0 4px;cursor:pointer;font-weight:500;font-family:inherit;text-transform:none;letter-spacing:normal;font-size:.9rem"><input type="checkbox" id="all-days" onchange="toggleAllDays()" style="width:auto"> <span id="all-days-text">I'll attend the 3 days</span></label>
+            <div style="height:8px"></div>
+            <label style="display:flex;align-items:flex-start;gap:8px;margin:8px 0 8px 16px;cursor:pointer;font-size:.85rem;font-weight:300;font-family:inherit;text-transform:none;letter-spacing:normal;line-height:1.4"><input type="checkbox" class="day-box" value="friday" onchange="onDayChange()" style="width:auto;margin-top:2px"> Friday 30th October from 4.30pm — Ceremony, cocktails, dinner &amp; party</label>
+            <label style="display:flex;align-items:flex-start;gap:8px;margin:8px 0 8px 16px;cursor:pointer;font-size:.85rem;font-weight:300;font-family:inherit;text-transform:none;letter-spacing:normal;line-height:1.4"><input type="checkbox" class="day-box" value="saturday" onchange="onDayChange()" style="width:auto;margin-top:2px"> Saturday 31st October — Activities, barbecue, chill evening</label>
+            <label style="display:flex;align-items:flex-start;gap:8px;margin:8px 0 8px 16px;cursor:pointer;font-size:.85rem;font-weight:300;font-family:inherit;text-transform:none;letter-spacing:normal;line-height:1.4"><input type="checkbox" class="day-box" value="sunday" onchange="onDayChange()" style="width:auto;margin-top:2px"> Sunday 1st November — Checkout day</label>
           </div>
         </div>
         <div class="form-group" id="dietary-group"><label>Dietary Requirements <span class="opt">(optional)</span></label><textarea id="dietary" placeholder="e.g. Vegetarian, gluten-free, allergies..."></textarea></div>
@@ -197,7 +198,7 @@ footer .line{width:40px;height:1px;background:var(--sand);margin:0 auto 18px}
 <footer>
   <div class="line"></div>
   <p>wedding@audriamicka.com</p>
-  <p style="margin-top:8px"><a href="#" onclick="showAdmin();return false" style="color:var(--text-light);font-size:.75rem;opacity:.5">&#8226; Admin &#8226;</a></p>
+
 </footer>
 
 <script>
@@ -321,26 +322,21 @@ function lookupGuest(){
 
 function toggleAllDays(){
   var checked=document.getElementById('all-days').checked;
-  document.querySelectorAll('.day-box').forEach(function(cb){cb.checked=checked});
+  document.querySelectorAll('.day-box').forEach(function(cb){cb.checked=checked; cb.disabled=checked});
+}
+function onDayChange(){
+  var all=document.querySelectorAll('.day-box');
+  var allChecked=true;
+  all.forEach(function(cb){if(!cb.checked)allChecked=false});
+  document.getElementById('all-days').checked=allChecked;
 }
 
 function toggleGuestFields(){
   var checked=document.getElementById('no-guests').checked;
   var container=document.getElementById('guest-fields');
-  var inputs=container.querySelectorAll('input');
   container.style.display=checked?'none':'block';
-
-  // Also toggle days section
-  var daysSection=container.parentElement.querySelectorAll('.form-group')[container.parentElement.querySelectorAll('.form-group').length-3];
-  // Find all day checkboxes and toggle
-  var dayBoxes=document.querySelectorAll('.day-box');
-  var allDays=document.getElementById('all-days');
-  [].forEach.call(dayBoxes,function(cb){cb.parentElement.style.display=checked?'none':'flex'});
-  if(allDays)allDays.parentElement.style.display=checked?'none':'flex';
   if(checked){
-    inputs.forEach(function(inp){inp.value=''});
-    [].forEach.call(dayBoxes,function(cb){cb.checked=false});
-    if(allDays)allDays.checked=false;
+    container.querySelectorAll('input').forEach(function(inp){inp.value=''});
   }
 }
 

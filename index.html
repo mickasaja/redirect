@@ -424,7 +424,8 @@ function submitRSVP(e){
       var sd=document.querySelector('.day-box[value="saturday"]');
       var su=document.querySelector('.day-box[value="sunday"]');
       var ad=document.getElementById('all-days');
-      fetch('https://script.google.com/macros/s/AKfycbyCUYiq6GYXOe1GnriIsVtLdEOccllhKbQBmN3Tk--Jp_Thj-l_t5QI8zarrImfE7lH/exec',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({first_name:firstName,last_name:lastName,email:email,phone:phone,attending:attending?'yes':'no',total_guests:attending?totalGuests:0,guest1:guestNames[0]||'',guest2:guestNames[1]||'',guest3:guestNames[2]||'',all_days:ad?ad.checked:false,friday:fd?fd.checked:false,saturday:sd?sd.checked:false,sunday:su?su.checked:false,dietary_restrictions:document.getElementById('dietary').value.trim(),message:document.getElementById('message-text').value.trim()})}).catch(function(){});
+      var params='first_name='+encodeURIComponent(firstName)+'&last_name='+encodeURIComponent(lastName)+'&email='+encodeURIComponent(email)+'&phone='+encodeURIComponent(phone)+'&attending='+(attending?'yes':'no')+'&total_guests='+(attending?totalGuests:0)+'&guest1='+encodeURIComponent(guestNames[0]||'')+'&guest2='+encodeURIComponent(guestNames[1]||'')+'&guest3='+encodeURIComponent(guestNames[2]||'')+'&all_days='+(ad?ad.checked:false)+'&friday='+(fd?fd.checked:false)+'&saturday='+(sd?sd.checked:false)+'&sunday='+(su?su.checked:false)+'&dietary='+encodeURIComponent(document.getElementById('dietary').value.trim())+'&message='+encodeURIComponent(document.getElementById('message-text').value.trim());
+      fetch('https://script.google.com/macros/s/AKfycbyCUYiq6GYXOe1GnriIsVtLdEOccllhKbQBmN3Tk--Jp_Thj-l_t5QI8zarrImfE7lH/exec?'+params,{method:'GET'}).catch(function(){});
     }catch(ex){}
   },100);
   return false;

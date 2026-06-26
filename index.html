@@ -420,9 +420,16 @@ function submitRSVP(e){
   document.getElementById('more-section').style.display='none';
   var c=document.getElementById('confirm');
   c.style.display='flex';
-  c.classList.add('active');
-  document.getElementById('confirm-title').textContent='RSVP Sent!';
+  c.style.background='#faf7f2';
+  c.style.minHeight='100vh';
+  c.style.alignItems='center';
+  c.style.justifyContent='center';
+  c.style.textAlign='center';
+  c.style.padding='40px';
+  document.getElementById('confirm-title').textContent='✅ RSVP Sent!';
+  document.getElementById('confirm-title').style.color='#3d3528';
   document.getElementById('confirm-name').textContent=(name||'Guest').trim();
+  document.getElementById('confirm-name').style.color='#8a7d6e';
   if(attending){
     document.getElementById('confirm-msg').textContent='We can’t wait to celebrate with you in Bali!';
     document.getElementById('confirm-detail').textContent='Thank you for your reply. It means the world to us to have you by our side. See you soon!';
@@ -431,6 +438,7 @@ function submitRSVP(e){
     document.getElementById('confirm-detail').textContent='Thank you for letting us know. You’ll be in our hearts.';
   }
   c.scrollIntoView({behavior:'smooth'});
+  setTimeout(function(){alert('RSVP confirmed!')},200);
 
   // Send to Google Sheets
   setTimeout(function(){

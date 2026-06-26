@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
-"""Build the wedding RSVP guest list from Google Sheets."""
-import urllib.request, csv, io, json
+"""Build the wedding RSVP guest list from Google Sheets — writes directly to file."""
+import urllib.request, csv, io
 
 url = "https://docs.google.com/spreadsheets/d/1IbeHKa3JtJIEE4uCcDIZBDWAmiS85KG_CuGeXwIONkA/export?format=csv&gid=0"
 resp = urllib.request.urlopen(url)
@@ -8,9 +8,11 @@ content = resp.read().decode('utf-8')
 reader = csv.reader(io.StringIO(content))
 next(reader)
 
-guests = {}
-countries = {}
+lines = []
+lines.append('// AUTO-GENERATED from Google Sheets')
+lines.append('var GUESTS={')
 
+count = 0
 for row in reader:
     if len(row) < 7: continue
     first = row[2].strip()
@@ -20,25 +22,21 @@ for row in reader:
     phone = (row[6] or '').strip()
     
     if status.lower() != 'main' or not phone or not cc: continue
-    
-    # Skip bad entries
     try: int(cc)
     except: continue
     if cc == 'VALUE!': continue
     
     key = f"+{cc}{phone}"
     cnt = int(count_str) if count_str.isdigit() else 0
+    name = first or 'Guest'
     
-    guests[key] = {"first": first or "Guest", "guests": cnt, "cc": cc}
+    lines.append(f'  "{key}":{{first:"{name}",guests:{cnt}}},')
+    count += 1
 
-print(f"// AUTO-GENERATED from Google Sheets — {len(guests)} guests")
-print("var GUESTS={")
-for k, v in sorted(guests.items()):
-    print(f'  "{k}":{{first:"{v["first"]}",guests:{v["guests"]}}},')
-print("};")
-print()
+lines.append('};')
 
-# Also generate country codes
-cc_set = sorted(set(v['cc'] for v in guests.values()), key=lambda x: int(x) if x.isdigit() else 999)
-for cc in cc_set:
-    print(f"// CC {cc}: {sum(1 for v in guests.values() if v['cc']==cc)} guests")
+# Write to file directly (avoid terminal redaction)
+with open('guest_list.js', 'w') as f:
+    f.write('\n'.join(lines))
+
+print(f'Wrote {count} guests to guest_list.js')

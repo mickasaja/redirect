@@ -284,6 +284,15 @@ function lookupGuest(){
   var phone='+'+cc+raw;
   var guest=GUESTS[phone];
   if(!guest){err.textContent='Phone number not found. Please check or contact us.';err.classList.remove('hidden');return}
+  
+  // Check if already RSVP'd
+  var rsvps=JSON.parse(localStorage.getItem('wedding_rsvps')||'[]');
+  if(rsvps.some(function(r){return normalizePhone(r.phone)===normalizePhone(phone)})){
+    err.textContent='Your RSVP has already been registered, please check with the organizers.';
+    err.classList.remove('hidden');
+    return;
+  }
+  
   currentGuest=guest;
   currentGuest.rawPhone=raw;
   currentGuest.cc=cc;
@@ -385,11 +394,6 @@ function submitRSVP(e){
   var attending=document.querySelector('input[name="attending"]:checked').value==='yes';
   var phone=document.getElementById('phone').value;
   var rsvps=JSON.parse(localStorage.getItem('wedding_rsvps')||'[]');
-  if(rsvps.some(function(r){return normalizePhone(r.phone)===normalizePhone(phone)})){
-    alert('Your RSVP has already been registered, please check with the organizers.');
-    return false;
-  }
-
   var firstName=document.getElementById('rsvp_first').value.trim();
   var lastName=document.getElementById('rsvp_last').value.trim();
   var name=firstName+' '+lastName;
